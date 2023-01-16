@@ -15,7 +15,11 @@ class MainActivity : AppCompatActivity() {
         val addEditText = findViewById<EditText>(R.id.new_todo)
         val todoItemList = findViewById<ListView>(R.id.todo_list)
 
-        val todos = mutableListOf("take out trash", "pay invoice #23", "build cool app")
+        val todos = mutableListOf(
+            Todo("take out trash"),
+            Todo("pay invoice #23"),
+            Todo("build cool app"),
+        )
 
         val adapter = TodoAdapter(this, todos)
         todoItemList.adapter = adapter
@@ -23,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         addButton.setOnClickListener {
             val newTodoTitle = addEditText.text.toString().trim()
             if (newTodoTitle.isNotBlank()) {
-                adapter.addTodo(newTodoTitle)
+                adapter.addTodo(Todo(newTodoTitle))
                 addEditText.setText("")
             }
         }
