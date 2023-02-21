@@ -7,67 +7,49 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StrikethroughSpan
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.CheckBox
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 
-class TodoAdapter(context: Context, initData: List<Todo>) : BaseAdapter() {
+class TodoAdapter(context: Context, private val dataSource: MutableList<Todo>) :
+    RecyclerView.Adapter<TodoViewHolder>() {
 
-    private val dataSource = mutableListOf<Todo>()
     private val inflater: LayoutInflater =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
-    init {
-        dataSource.addAll(initData)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoViewHolder {
+        val itemView = inflater.inflate(R.layout.todo_item, parent, false)
+        return TodoViewHolder(itemView)
     }
 
-    override fun getCount(): Int {
-        return dataSource.size
-    }
+    override fun onBindViewHolder(holder: TodoViewHolder, position: Int) {
+        val item = dataSource[position]
 
-    override fun getItem(position: Int): Any {
-        return dataSource[position]
-    }
-
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
-
-    fun addTodo(todo: Todo) {
-        dataSource.add(todo)
-        notifyDataSetChanged()
-    }
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        // todo switch to recycler view
-        val createdView = inflater.inflate(R.layout.todo_item, parent, false)
-
-        val titleView = createdView.findViewById(R.id.title) as TextView
-        val checkBoxView = createdView.findViewById(R.id.checkbox) as CheckBox
-
-        val item = getItem(position) as Todo
-
-        titleView.setText(SpannableString(item.title), TextView.BufferType.SPANNABLE)
-        checkBoxView.isChecked = item.done
+        holder.titleView.setText(SpannableString(item.title), TextView.BufferType.SPANNABLE)
+        holder.checkBoxView.isChecked = item.done
 
         if (item.done) {
-            val spannable = titleView.text as Spannable
+            val spannable = holder.titleView.text as Spannable
             spannable.setSpan(
                 StrikethroughSpan(),
                 0,
                 spannable.length,
                 Spanned.SPAN_INCLUSIVE_EXCLUSIVE
             )
-            titleView.setTextColor(Color.rgb(155, 155, 155))
+            holder.titleView.setTextColor(Color.rgb(155, 155, 155))
         }
 
-        checkBoxView.setOnCheckedChangeListener { _, newIsChecked ->
+        holder.checkBoxView.setOnCheckedChangeListener { _, newIsChecked ->
             item.done = newIsChecked
-            notifyDataSetChanged()
+            // TODO: master/21.02.2023 move to ui thread, otherwise will crash
+            notifyItemChanged(position)
         }
+    }
 
-        return createdView
+    override fun getItemCount(): Int = dataSource.size
+
+    fun addTodo(todo: Todo) {
+        dataSource.add(todo)
+        notifyItemInserted(dataSource.size - 1)
     }
 }

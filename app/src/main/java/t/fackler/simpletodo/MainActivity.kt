@@ -2,9 +2,10 @@ package t.fackler.simpletodo
 
 import android.os.Bundle
 import android.widget.EditText
-import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,7 +14,7 @@ class MainActivity : AppCompatActivity() {
 
         val addButton = findViewById<AppCompatButton>(R.id.new_todo_button)
         val addEditText = findViewById<EditText>(R.id.new_todo)
-        val todoItemList = findViewById<ListView>(R.id.todo_list)
+        val todoItemRecyclerView = findViewById<RecyclerView>(R.id.todo_list)
 
         val todos = mutableListOf(
             Todo("take out trash"),
@@ -21,8 +22,9 @@ class MainActivity : AppCompatActivity() {
             Todo("build cool app"),
         )
 
+        todoItemRecyclerView.layoutManager = LinearLayoutManager(applicationContext)
         val adapter = TodoAdapter(this, todos)
-        todoItemList.adapter = adapter
+        todoItemRecyclerView.adapter = adapter
 
         addButton.setOnClickListener {
             val newTodoTitle = addEditText.text.toString().trim()
